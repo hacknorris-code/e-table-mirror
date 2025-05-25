@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title></title>
+    <style>
+      html, body{
+        width:99%;
+        height:99%;
+          position: relative;
+      }
+      td{
+        min-width: 10px;
+        min-height: 10px;
+      }
+      main{
+        margin: 0 auto;
+        height: 100%;
+        position: relative;
+      }
+      #wrapper{
+        margin: 0 auto;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .dark-mode {
+        background-color: black;
+        color: white;
+      }
+    </style>
+  </head>
+  <body onload="initTab()">
+    <header>
+    </header>
+    <nav>
+      <input type="file" id="addLoader" multiple><button onclick="themeToggle()">💡</button>
+    </nav>
+    <hr>
+    <main>
+      <table id="wrapper" style="text-align: center;">
+        <tr>
+          <td><button onclick="rowMod(0);colMod(0)">-</button></td>
+          <td><button onclick="rowMod(0)">-</button></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><button onclick="colMod(0)">-</button></td>
+          <td>
+            <table id="main">
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </table>
+          </td>
+          <td><button onclick="colMod(1)">+</button></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><button onclick="rowMod(1)">+</button></td>
+          <td><button onclick="rowMod(1);colMod(1)">+</button></td>
+        </tr>
+      </table>
+    </main>
+    <script>
+      table = document.getElementById("main");
+      function getRandomHexColor() {
+        const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+        return `#${randomColor.padStart(6, '0')}`;
+      }
+      function themeToggle() {
+        var element = document.body;
+        element.classList.toggle("dark-mode");
+      }
+      function rowMod(type) {
+        if (type) {
+          const len = table.rows[0] ? table.rows[0].cells.length : 0; // Get the number of cells in the first row
+          const newRow = table.insertRow(-1);
+          for (let i = 0; i < len; i++) {
+            newRow.insertCell(i); // Insert a cell for each existing cell
+          }
+        } else {
+          if (table.rows.length > 0) { // Check if there are rows to delete
+            table.deleteRow(-1);
+          }
+        }
+        initTab();
+      }
+      function colMod(type) {
+        if (type) {
+          for (let i = 0; i < table.rows.length; i++) {
+            const newCell = table.rows[i].insertCell(table.rows[i].cells.length); // Insert a new cell at the end of each row
+          }
+        } else {
+          for (let i = 0; i < table.rows.length; i++) {
+            if (table.rows[i].cells.length > 0) { // Check if there are cells to delete
+              table.rows[i].deleteCell(-1); // Delete the last cell of each row
+            }
+          }
+        }
+        initTab();
+      }
+      function initTab(){
+        array = document.querySelectorAll("#main td");
+        array.forEach((element,index) => {
+          element.innerHTML = index;
+          element.setAttribute("contenteditable",true);
+          element.setAttribute("id",index);
+          element.onauxclick = (e) => {e.preventDefault();element.style.color = getRandomHexColor(); element.style.backgroundColor = getRandomHexColor();};
+          element.oncontextmenu = (e) => {e.preventDefault();};
+        });
+      }
+      function changeCol(e){
+
+      }
+      document.getElementById('addLoader').addEventListener('change', function() {
+        const fileInput = this;
+        const files = fileInput.files; 
+        if (files.length === 0) {
+          return;
+        }
+        Array.from(files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            try {
+              eval(event.target.result);
+            } catch (error) {
+              console.error(`Error executing file ${file.name}:`, error);
+            }
+          };
+          reader.readAsText(file);
+        });
+      });
+    </script>
+  </body>
+</html>

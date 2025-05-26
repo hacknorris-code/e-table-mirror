@@ -32,21 +32,34 @@
       }
     </style>
   </head>
-  <body onload="initTab()">
+  <body onload="initTab();tableFill();">
     <header>
     </header>
     <nav>
-      <input type="file" id="addLoader" multiple><button onclick="themeToggle()">💡</button>
+      <label for="ext">load extension: </label><input name="ext" type="file" id="addLoader" multiple> |
+      <label for="backup">load table: </label><input name="backup" type="file" id="backupLoader"> |
+      <button onclick="saveTable()">save table</button> |
+      <button onclick="themeToggle()">💡</button>
     </nav>
     <hr>
     <main>
       <table id="wrapper" style="text-align: center;">
         <tr>
-          <td><button onclick="rowMod(0);colMod(0)">-</button></td>
-          <td><button onclick="rowMod(0)">-</button></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
           <td></td>
         </tr>
         <tr>
+          <td></td>
+          <td><button onclick="rowMod(0);colMod(0)">-</button></td>
+          <td><button onclick="rowMod(0)">-</button></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
           <td><button onclick="colMod(0)">-</button></td>
           <td>
             <table id="main">
@@ -77,19 +90,92 @@
             </table>
           </td>
           <td><button onclick="colMod(1)">+</button></td>
+          <td></td>
         </tr>
         <tr>
           <td></td>
+          <td></td>
           <td><button onclick="rowMod(1)">+</button></td>
           <td><button onclick="rowMod(1);colMod(1)">+</button></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td><button onclick="transpose()">~</button></td>
         </tr>
       </table>
     </main>
     <script>
       table = document.getElementById("main");
+      function rgb2hex(rgb) {
+        if (rgb.search("rgb") == -1 ) {
+          return rgb;
+        } else {
+          rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+          function hex(x) {
+            return ("0" + parseInt(x).toString(16)).slice(-2);
+          }
+          return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+        }
+      }
+      function atou(b64) {
+        return decodeURIComponent(escape(atob(b64)));
+      }
+      function utoa(data) {
+        return btoa(unescape(encodeURIComponent(data)));
+      }
+      function tableFill(){
+        document.querySelectorAll("#main td").forEach((element,index) => {element.innerHTML = "•";});
+      }
       function getRandomHexColor() {
         const randomColor = Math.floor(Math.random() * 16777215).toString(16);
         return `#${randomColor.padStart(6, '0')}`;
+      }
+      function saveTable() { // csv: b64 bg fg,
+        rows = document.querySelectorAll("#main tr");
+        let csv_data = [];
+        for (let i = 0; i < rows.length; i++) {
+          let cols = rows[i].querySelectorAll('#main td,th');
+          let csvrow = [];
+          for (let j = 0; j < cols.length; j++) {
+            csvrow.push(utoa(cols[j].innerHTML) + " " + rgb2hex(cols[j].style.backgroundColor) + " " + rgb2hex(cols[j].style.color));
+          }
+          csv_data.push(csvrow.join(","));
+        }
+        csv_data = csv_data.join('\n');
+        CSVFile = new Blob([csv_data], {
+          type: "text/csv"
+        });
+        let temp_link = document.createElement('a');
+        temp_link.download = "table_backup.csv";
+        let url = window.URL.createObjectURL(CSVFile);
+        temp_link.href = url;
+        temp_link.style.display = "none";
+        document.body.appendChild(temp_link);
+        temp_link.click();
+        document.body.removeChild(temp_link);
+      }
+      function inputTable(data){
+        rows = data.split(/\r?\n/);
+        var table = document.getElementById("main");
+        table.innerHTML = "";
+        for (let i = 0; i < rows.length; i++){
+          var row = table.insertRow(i);
+          cols = rows[i].split(",");
+          console.log(cols);
+          for (let j = 0; j < cols.length; j++){
+            var cell = row.insertCell(j);
+            var d = cols[j].split(" ");
+            console.log(d);
+            cell.innerHTML = atou(d[0]);
+            cell.style.backgroundColor = d[1];
+            cell.style.color = d[2];
+          }
+        }
+        initTab();
       }
       function themeToggle() {
         var element = document.body;
@@ -97,13 +183,14 @@
       }
       function rowMod(type) {
         if (type) {
-          const len = table.rows[0] ? table.rows[0].cells.length : 0; // Get the number of cells in the first row
+          const len = table.rows[0] ? table.rows[0].cells.length : 0;
           const newRow = table.insertRow(-1);
           for (let i = 0; i < len; i++) {
-            newRow.insertCell(i); // Insert a cell for each existing cell
+            newCell = newRow.insertCell(i);
+            newCell.innerHTML = "•";
           }
         } else {
-          if (table.rows.length > 0) { // Check if there are rows to delete
+          if (table.rows.length > 0) {
             table.deleteRow(-1);
           }
         }
@@ -112,21 +199,57 @@
       function colMod(type) {
         if (type) {
           for (let i = 0; i < table.rows.length; i++) {
-            const newCell = table.rows[i].insertCell(table.rows[i].cells.length); // Insert a new cell at the end of each row
+            const newCell = table.rows[i].insertCell(table.rows[i].cells.length);
+            newCell.innerHTML = "•";
           }
         } else {
           for (let i = 0; i < table.rows.length; i++) {
-            if (table.rows[i].cells.length > 0) { // Check if there are cells to delete
-              table.rows[i].deleteCell(-1); // Delete the last cell of each row
+            if (table.rows[i].cells.length > 0) {
+              table.rows[i].deleteCell(-1);
             }
           }
         }
         initTab();
       }
+      function transpose() {
+        const originalTable = document.getElementById("main");
+        // Read whole table and save to matrix
+        let rows = Array.from(originalTable.rows);
+        let matrix = [];
+        for (let i = 0; i < rows.length; i++) {
+          let row = [];
+          for (let j = 0; j < rows[i].cells.length; j++) {
+            row.push(rows[i].cells[j].textContent);
+          }
+          matrix.push(row);
+        }
+
+        // Transpose the matrix
+        let transposedMatrix = new Array(matrix[0].length).fill(0).map(() => new Array(matrix.length).fill(0));
+        for (let i = 0; i < matrix.length; i++) {
+          for (let j = 0; j < matrix[i].length; j++) {
+            transposedMatrix[j][i] = matrix[i][j];
+          }
+        }
+
+        // Fill the table with transposed matrix content
+        let html = '<table>';
+        for (let i = 0; i < transposedMatrix.length; i++) {
+          html += `<tr>`;
+          for (let j = 0; j < transposedMatrix[0].length; j++) {
+            html += `<td>${transposedMatrix[i][j]}</td>`;
+          }
+          html += '</tr>';
+        }
+        html += '</table>';
+
+        // Append the HTML to the table
+        originalTable.innerHTML = html;
+        initTab();
+      }
       function initTab(){
         array = document.querySelectorAll("#main td");
         array.forEach((element,index) => {
-          element.innerHTML = index;
           element.setAttribute("contenteditable",true);
           element.setAttribute("id",index);
           element.onauxclick = (e) => {e.preventDefault();element.style.color = getRandomHexColor(); element.style.backgroundColor = getRandomHexColor();};
@@ -147,6 +270,24 @@
           reader.onload = function(event) {
             try {
               eval(event.target.result);
+            } catch (error) {
+              console.error(`Error executing file ${file.name}:`, error);
+            }
+          };
+          reader.readAsText(file);
+        });
+      });
+      document.getElementById('backupLoader').addEventListener('change', function() {
+        const fileInput = this;
+        const files = fileInput.files;
+        if (files.length === 0) {
+          return;
+        }
+        Array.from(files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            try {
+              inputTable(event.target.result);
             } catch (error) {
               console.error(`Error executing file ${file.name}:`, error);
             }

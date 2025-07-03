@@ -26,9 +26,32 @@
         top: 50%;
         transform: translateY(-50%);
       }
-      .dark-mode {
+      .white-mode{
+        background-color: initial;
+        color: initial;
+      }
+      .dark-mode{
+        background-color: DarkSlateGrey ;
+        color: Cornsilk ;
+      }
+      .black-mode {
         background-color: black;
         color: white;
+      }
+      .hotdog-mode{
+        background-color: yellow;
+        color: blue;
+      }
+      .light-mode{
+        background-color: linen;
+        color: saddlebrown;
+      }
+      .separated_table, .separated_table > * > *, .separated_table > * > * > *{
+        border: 1px solid ;
+        border-collapse: collapse;
+      }
+      .separated_table_2, .separated_table_2 > * > *, .separated_table_2 > * > * > *{
+        border: 1px solid ;
       }
     </style>
   </head>
@@ -39,6 +62,7 @@
       <label for="ext">load extension: </label><input name="ext" type="file" id="addLoader" multiple> |
       <label for="backup">load table: </label><input name="backup" type="file" id="backupLoader"> |
       <button onclick="saveTable()">save table</button> |
+      <button onclick="cellToggle()">🔲</button> |
       <button onclick="themeToggle()">💡</button>
     </nav>
     <hr>
@@ -104,7 +128,7 @@
           <td></td>
           <td></td>
           <td></td>
-          <td><button onclick="transpose()">~</button></td>
+          <td><button onclick="transpose()" onauxclick="transpose();transpose();return false;" onContextMenu="transpose();transpose();return false;">~</button></td>
         </tr>
       </table>
     </main>
@@ -133,6 +157,28 @@
       function getRandomHexColor() {
         const randomColor = Math.floor(Math.random() * 16777215).toString(16);
         return `#${randomColor.padStart(6, '0')}`;
+      }
+      function toggleClasses(selector, classes) {
+        selector = selector || '';
+        classes = classes || '';
+        if (
+          typeof selector == 'string'
+        &&
+          (typeof classes == 'string' || Array.isArray(classes))
+        &&
+          classes.length // true if either string or array not empty
+        &&
+          (selector = document.querySelector(selector))
+        ) {
+          var classList = selector.classList;
+          if (!Array.isArray(classes)) {
+            classes = classes.replace(/(,\s*|\s+)/g, ' ').split(' ');
+          }
+          for (var className of classes) {
+            classList.toggle(className);
+          }
+          return true;
+        }
       }
       function saveTable() { // csv: b64 bg fg,
         rows = document.querySelectorAll("#main tr");
@@ -178,8 +224,20 @@
         initTab();
       }
       function themeToggle() {
-        var element = document.body;
-        element.classList.toggle("dark-mode");
+        toggleClasses("body","dark-mode black-mode hotdog-mode light-mode white-mode");
+        document.body.classList.toggle("dark-mode");
+      }
+      function cellToggle(){
+      let tbl = document.getElementById("main");
+        if (tbl.classList.contains("separated_table")){
+          tbl.classList.add("separated_table_2");
+          tbl.classList.remove("separated_table");
+        }else if (tbl.classList.contains("separated_table_2")){
+          tbl.classList.remove("separated_table");
+          tbl.classList.remove("separated_table_2");
+        }else{
+          tbl.classList.add("separated_table");
+        }
       }
       function rowMod(type) {
         if (type) {

@@ -11,6 +11,9 @@ table = {
     set_style_at : function (x,y,bg,fg){
         table_elem.rows[x].cells[y].style.color = fg ? fg : getRandomHexColor();
         table_elem.rows[x].cells[y].style.backgroundColor = bg ? bg : getRandomHexColor();
+    },
+    get_size: function(){
+        return [table_elem.rows.length,table_elem.rows[0].cells.length]
     }
 }
 navbar = {
@@ -19,6 +22,7 @@ navbar = {
         a.innerText = x;
         a.onclick = y;
         navbar_elem.appendChild(a);
+        return a;
     },
     add_textfield : function(x,y,search){
         a = document.createElement("input");
@@ -27,9 +31,16 @@ navbar = {
             navbar_elem.appendChild(a);
             a.addEventListener('change', e => y(e.target.value));
         }else{
-            this.add_button("🔍",y);
+            this.add_button(">>>",y);
             navbar_elem.appendChild(a);
         }
-        return navbar_elem;
+        return a;
+    },
+    add_label : function(x){
+        a = document.createElement("label");
+        a.innerText = x;
+        navbar_elem.appendChild(a);
+        return a;
     }
+
 }

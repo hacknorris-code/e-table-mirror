@@ -135,7 +135,7 @@
       </table>
     </main>
     <script>
-      table = document.getElementById("main");
+      main_table = document.getElementById("main");
       function rgb2hex(rgb) {
         if (rgb.search("rgb") == -1 ) {
           return rgb;
@@ -186,10 +186,10 @@
       }
       function inputTable(data){
         rows = data.split(/\r?\n/);
-        var table = document.getElementById("main");
-        table.innerHTML = "";
+        var main_table = document.getElementById("main");
+        main_table.innerHTML = "";
         for (let i = 0; i < rows.length; i++){
-          var row = table.insertRow(i);
+          var row = main_table.insertRow(i);
           cols = rows[i].split(",");
           console.log(cols);
           for (let j = 0; j < cols.length; j++){
@@ -232,29 +232,29 @@
       }
       function rowMod(type) {
         if (type) {
-          const len = table.rows[0] ? table.rows[0].cells.length : 0;
-          const newRow = table.insertRow(-1);
+          const len = main_table.rows[0] ? main_table.rows[0].cells.length : 0;
+          const newRow = main_table.insertRow(-1);
           for (let i = 0; i < len; i++) {
             newCell = newRow.insertCell(i);
             newCell.innerHTML = "•";
           }
         } else {
-          if (table.rows.length > 0) {
-            table.deleteRow(-1);
+          if (main_table.rows.length > 0) {
+            main_table.deleteRow(-1);
           }
         }
         initTab();
       }
       function colMod(type) {
         if (type) {
-          for (let i = 0; i < table.rows.length; i++) {
-            const newCell = table.rows[i].insertCell(table.rows[i].cells.length);
+          for (let i = 0; i < main_table.rows.length; i++) {
+            const newCell = main_table.rows[i].insertCell(main_table.rows[i].cells.length);
             newCell.innerHTML = "•";
           }
         } else {
-          for (let i = 0; i < table.rows.length; i++) {
-            if (table.rows[i].cells.length > 0) {
-              table.rows[i].deleteCell(-1);
+          for (let i = 0; i < main_table.rows.length; i++) {
+            if (main_table.rows[i].cells.length > 0) {
+              main_table.rows[i].deleteCell(-1);
             }
           }
         }

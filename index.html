@@ -66,6 +66,8 @@
       <button onclick="themeToggle()">💡</button>
     </nav>
     <hr>
+    <nav id="toolbar"></nav>
+    <hr>
     <main>
       <table id="wrapper" style="text-align: center;">
         <tr>
@@ -158,28 +160,6 @@
         const randomColor = Math.floor(Math.random() * 16777215).toString(16);
         return `#${randomColor.padStart(6, '0')}`;
       }
-      function toggleClasses(selector, classes) {
-        selector = selector || '';
-        classes = classes || '';
-        if (
-          typeof selector == 'string'
-        &&
-          (typeof classes == 'string' || Array.isArray(classes))
-        &&
-          classes.length // true if either string or array not empty
-        &&
-          (selector = document.querySelector(selector))
-        ) {
-          var classList = selector.classList;
-          if (!Array.isArray(classes)) {
-            classes = classes.replace(/(,\s*|\s+)/g, ' ').split(' ');
-          }
-          for (var className of classes) {
-            classList.toggle(className);
-          }
-          return true;
-        }
-      }
       function saveTable() { // csv: b64 bg fg,
         rows = document.querySelectorAll("#main tr");
         let csv_data = [];
@@ -223,9 +203,20 @@
         }
         initTab();
       }
+      function setTheme(theme) {
+        const body = document.body;
+        // List every possible theme class
+        const themes = ["dark-mode","black-mode","hotdog-mode","light-mode","white-mode"];
+        // Remove any that are currently on the element
+        body.classList.remove(...themes);
+        // Add the requested one
+        body.classList.add(theme);
+      }
+      let themeIndex = 0;
+      const themeCycle = ["dark-mode","black-mode","hotdog-mode","light-mode","white-mode"];
       function themeToggle() {
-        toggleClasses("body","dark-mode black-mode hotdog-mode light-mode white-mode");
-        document.body.classList.toggle("dark-mode");
+        setTheme(themeCycle[themeIndex]);
+        themeIndex = (themeIndex + 1) % themeCycle.length; // wrap around
       }
       function cellToggle(){
       let tbl = document.getElementById("main");
@@ -354,5 +345,6 @@
         });
       });
     </script>
+    <script src="api.js"></script>
   </body>
 </html>
